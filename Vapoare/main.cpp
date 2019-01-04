@@ -1,18 +1,53 @@
 /* This line is for Max OSX  */
 #include <GLUT/glut.h>
 #include <iostream>
-
+using namespace std;
 /*! GLUT display callback function */
 void display(void);
 /*! GLUT window reshape callback function */
 void reshape(int, int);
+void onMouseClick(int button, int state, int x, int y);
+
+int WIDTH = 1280;
+int HEIGHT = 760;
+int TOP_OFFSET = 100;
+int USER_LEFT_OFFSET = 100;
+int BF_SIZE = 400;
+int STEP_SIZE = BF_SIZE/10;
+int USER_BATTLE_FIELD[10][10]=
+{
+  {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+  {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+  {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+  {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+  {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+  {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+  {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+  {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+  {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+  {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+};
+
+int ENEMY_BATTLE_FIELD[10][10]=
+{
+  {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+  {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+  {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+  {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+  {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+  {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+  {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+  {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+  {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+  {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+};
 
 int main(int argc, char** argv)
 {
   glutInit(&argc, argv);
   
   /* set the window size to 512 x 512 */
-  glutInitWindowSize(1024, 512);
+  glutInitWindowSize(WIDTH, HEIGHT);
   
   /* set the display mode to Red, Green, Blue and Alpha
    allocate a depth buffer
@@ -29,6 +64,8 @@ int main(int argc, char** argv)
    */
   
   glutDisplayFunc(display);
+  
+  glutMouseFunc(onMouseClick);
   
   /* set the glut reshape callback function
    this is the function GLUT will call whenever
@@ -48,47 +85,71 @@ int main(int argc, char** argv)
   return 0;
 }
 
-void renderBattleField(int originX, int originY, int size=400)
+void renderBattleField(int originX, int originY, bool myBattleField)
 {
-  printf("%d %d %d\n",originX, originY, size);
+  
   glBegin(GL_LINE_LOOP);
   
-  glVertex2f(originX, originY);
-  glVertex2f(size+originX, originY);
-  glVertex2f(size+originX, size+originY);
-  glVertex2f(originX, size+originY);
+
+  glVertex2f(originX,           originY);
+  glVertex2f(BF_SIZE + originX, originY);
+  glVertex2f(BF_SIZE + originX, BF_SIZE+originY);
+  glVertex2f(originX,           BF_SIZE + originY);
   
   glEnd();
   
-  int stepSize = size/10;
+  
   
   glBegin(GL_LINES);
-  for (int i=0; i<=size; i+=stepSize) {
-    glVertex2f(originX, i+originY);
-    glVertex2f(size+originX, i+originY);
-    glVertex2f(i+originX, originY);
-    glVertex2f(i+originX, size+originY);
+  for (int i=0; i<BF_SIZE; i+=STEP_SIZE) {
+    glVertex2f(originX,           i+originY         );
+    glVertex2f(BF_SIZE + originX, i+originY         );
+    glVertex2f(i+originX,         originY           );
+    glVertex2f(i+originX,         BF_SIZE + originY );
   }
   glEnd();
+  
+    for (int i=0; i<BF_SIZE; i+=STEP_SIZE) {
+      for (int j=0; j<BF_SIZE; j+=STEP_SIZE) {
+        if (USER_BATTLE_FIELD[i/STEP_SIZE][j/STEP_SIZE]==2){
+          int x = i + USER_LEFT_OFFSET;
+          int y = j + TOP_OFFSET;
+          glColor3f(1, 0, 0);
+          glBegin(GL_POLYGON);
+            glVertex2f(x + 10             , y + 10);
+            glVertex2f(x + STEP_SIZE - 10 , y + 10);
+            glVertex2f(x + STEP_SIZE - 10 , y + STEP_SIZE - 10);
+            glVertex2f(x + 10             , y + STEP_SIZE - 10);
+          glEnd();
+        }
+        
+      }
+    }
 }
 
-/*! glut display callback function.  Every time the window needs to be drawn,
- glut will call this function.  This includes when the window size
- changes, or when another window covering part of this window is
- moved so this window is uncovered.
- */
+void onMouseClick(int button, int state, int x, int y)
+{
+  if (button == 0 && state == 1) {
+    int xIndex = (x - USER_LEFT_OFFSET)/STEP_SIZE;
+    int yIndex = (y - TOP_OFFSET)/STEP_SIZE;
+    USER_BATTLE_FIELD[xIndex][yIndex] = 2;
+  }
+  
+  
+  glutPostRedisplay();
+}
+
 void display()
 {
   /* clear the color buffer (resets everything to black) */
   glClear(GL_COLOR_BUFFER_BIT);
   
-  /* set the current drawing color to red */
   glColor3f(1, 0, 0);
-  
-  renderBattleField(10, 10);
+  renderBattleField(100, TOP_OFFSET, 1);
   
   glColor3f(1, 1, 1);
-  renderBattleField(500, 10);
+  renderBattleField(600, TOP_OFFSET, 0);
+  
   /* swap the back and front buffers so we can see what we just drew */
   glutSwapBuffers();
 }
@@ -111,7 +172,7 @@ void reshape(int width, int height)
   glLoadIdentity();
   
   /* set the camera view, orthographic projection in 2D */
-  gluOrtho2D(0,width,0,height);
+  gluOrtho2D(0,width,height,0);
   
   /* switch back to the model view matrix */
   glMatrixMode(GL_MODELVIEW);
