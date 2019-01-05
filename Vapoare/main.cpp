@@ -21,7 +21,7 @@ int STEP_SIZE = BF_SIZE/10;
 int USER_BATTLE_FIELD[10][10][2]=
 {
   {{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0}},
-  {{0,0},{2,0},{2,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0}},
+  {{0,0},{1,0},{1,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0}},
   {{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0}},
   {{0,0},{0,0},{2,0},{2,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0}},
   {{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0}},
@@ -35,7 +35,7 @@ int ENEMY_BATTLE_FIELD[10][10][2]=
 {
   {{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0}},
   {{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0}},
-  {{0,0},{2,0},{2,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0}},
+  {{0,0},{1,0},{1,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0}},
   {{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0}},
   {{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0}},
   {{0,0},{0,0},{0,0},{0,0},{4,0},{4,0},{4,0},{4,0},{0,0},{0,0}},
@@ -71,6 +71,8 @@ void renderBattleField(int originX, int originY, bool isEnemyBF)
 //      if (!isEnemyBF and cellCode) {
       if (cellCode) {
         switch (cellCode) {
+          case 1:
+            glColor3f(0.67, 0.3779, 0.91); break;
           case 2:
             glColor3f(0.0497, 0.5779, 0.71); break;
           case 3:
@@ -85,10 +87,10 @@ void renderBattleField(int originX, int originY, bool isEnemyBF)
         int realY = yIndex * STEP_SIZE + TOP_OFFSET;
         
         glBegin(GL_POLYGON);
-        glVertex2f(realX + 2            , realY + 2);
-        glVertex2f(realX + STEP_SIZE - 3 , realY + 2);
-        glVertex2f(realX + STEP_SIZE - 3 , realY + STEP_SIZE - 2);
-        glVertex2f(realX + 2             , realY + STEP_SIZE - 2);
+          glVertex2f(realX + 2             , realY + 2);
+          glVertex2f(realX + STEP_SIZE - 3 , realY + 2);
+          glVertex2f(realX + STEP_SIZE - 3 , realY + STEP_SIZE - 2);
+          glVertex2f(realX + 2             , realY + STEP_SIZE - 2);
         glEnd();
       }
       
@@ -104,10 +106,10 @@ void renderBattleField(int originX, int originY, bool isEnemyBF)
         int realY = yi + TOP_OFFSET;
         
         glBegin(GL_POLYGON);
-        glVertex2f(realX + 10             , realY + 10);
-        glVertex2f(realX + STEP_SIZE - 10 , realY + 10);
-        glVertex2f(realX + STEP_SIZE - 10 , realY + STEP_SIZE - 10);
-        glVertex2f(realX + 10             , realY + STEP_SIZE - 10);
+          glVertex2f(realX + 10             , realY + 10);
+          glVertex2f(realX + STEP_SIZE - 10 , realY + 10);
+          glVertex2f(realX + STEP_SIZE - 10 , realY + STEP_SIZE - 10);
+          glVertex2f(realX + 10             , realY + STEP_SIZE - 10);
         glEnd();
       }
     }
@@ -182,9 +184,6 @@ void renderGrid(int originX, int originY, bool isEnemyBF)
       glVertex2f(originX + BF_SIZE + SHC_OFFSET + STEP_SIZE , originY - STEP_SIZE );
       glVertex2f(originX + BF_SIZE + SHC_OFFSET + STEP_SIZE , originY + BF_SIZE   );
       glVertex2f(originX + BF_SIZE + SHC_OFFSET             , originY + BF_SIZE   );
-    glEnd();
-    glBegin(GL_LINES);
-      glVertex2f(originX       , originY + BF_SIZE );
     glEnd();
   }
 }
