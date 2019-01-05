@@ -131,10 +131,10 @@ void renderBattleField(int originX, int originY, bool isEnemyBF)
           setColorByCellCode(i);
           
           glBegin(GL_POLYGON);
-          glVertex2f(columnX + 10             , tempColumnY + 10);
-          glVertex2f(columnX + STEP_SIZE - 10 , tempColumnY + 10);
-          glVertex2f(columnX + STEP_SIZE - 10 , tempColumnY + STEP_SIZE - 10);
-          glVertex2f(columnX + 10             , tempColumnY + STEP_SIZE - 10);
+          glVertex2f(columnX + 3             , tempColumnY + 4);
+          glVertex2f(columnX + STEP_SIZE - 5 , tempColumnY + 4);
+          glVertex2f(columnX + STEP_SIZE - 5 , tempColumnY + STEP_SIZE - 3);
+          glVertex2f(columnX + 3             , tempColumnY + STEP_SIZE - 3);
           glEnd();
         }
       }
