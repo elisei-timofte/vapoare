@@ -155,9 +155,14 @@ void onMouseClick(int button, int state, int x, int y)
     int yIndex = (y - TOP_OFFSET)/STEP_SIZE;
     
     if (clickedOnEnemy){
-      ENEMY_BATTLE_FIELD[yIndex][xIndex][1] = round;
-      ENEMY_SHIPS[ENEMY_BATTLE_FIELD[yIndex][xIndex][0]]++;
-      toogleRender = 1;
+      if (!ENEMY_BATTLE_FIELD[yIndex][xIndex][1]) {
+        ENEMY_BATTLE_FIELD[yIndex][xIndex][1] = round;
+        int shipLenth = ENEMY_BATTLE_FIELD[yIndex][xIndex][0];
+        if (ENEMY_SHIPS[shipLenth] < shipLenth) {
+          ENEMY_SHIPS[shipLenth]++;
+        }
+        toogleRender = 1;
+      }
     }
     if (clickedOnUser){
       USER_BATTLE_FIELD[yIndex][xIndex][1] = round;
