@@ -73,7 +73,7 @@ void renderBattleField(int originX, int originY, bool isEnemyBF)
           case 2:
             glColor3f(0.0497, 0.5779, 0.71); break;
           case 3:
-            glColor3f(0.1602, 0.5251, 0.89); break;
+            glColor3f(0.3276, 0.8906, 0.91); break;
           case 4:
             glColor3f(0.1152, 0.2701, 0.96); break;
         }
