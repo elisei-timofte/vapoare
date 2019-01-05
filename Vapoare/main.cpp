@@ -8,8 +8,6 @@ void reshape(int, int);
 void onMouseClick(int, int, int, int);
 
 void renderGrid(int, int, bool);
-void renderUserBattleShips();
-void renderStrikesOnBattleFields(bool);
 int getLeftOffset(bool);
 
 int WIDTH = 1280;
@@ -47,15 +45,64 @@ int ENEMY_BATTLE_FIELD[10][10][2]=
 };
 int round = 1;
 
-void renderBattleField(int originX, int originY, bool isEnemyBattleField)
+void renderBattleField(int originX, int originY, bool isEnemyBF)
 {
-  cout<<"Render Battle field "<<isEnemyBattleField<<"\n";
-  renderGrid(originX, originY, isEnemyBattleField);
+  cout<<"Render Battle field "<<isEnemyBF<<"\n";
+  renderGrid(originX, originY, isEnemyBF);
   
   int strikeNo;
-  int leftOffset = getLeftOffset(isEnemyBattleField);
+  int cellCode;
+  int leftOffset = getLeftOffset(isEnemyBF);
   
-  renderStrikesOnBattleFields(isEnemyBattleField);
+  for (int xi=0; xi<BF_SIZE; xi+=STEP_SIZE) {
+    for (int yi=0; yi<BF_SIZE; yi+=STEP_SIZE) {
+      int yIndex = yi/STEP_SIZE;
+      int xIndex = xi/STEP_SIZE;
+      
+      if (isEnemyBF) {
+        cellCode = ENEMY_BATTLE_FIELD[yIndex][xIndex][0];
+        strikeNo = ENEMY_BATTLE_FIELD[yIndex][xIndex][1];
+      } else {
+        cellCode = USER_BATTLE_FIELD[yIndex][xIndex][0];
+        strikeNo = USER_BATTLE_FIELD[yIndex][xIndex][1];
+      }
+      // render battle ships
+      if (!isEnemyBF and cellCode) {
+        switch (cellCode) {
+          case 2:
+            glColor3f(0.0497, 0.5779, 0.71); break;
+          case 3:
+            glColor3f(0.1602, 0.5251, 0.89); break;
+          case 4:
+            glColor3f(0.1152, 0.2701, 0.96); break;
+        }
+        
+        int realX = xIndex * STEP_SIZE + USER_LEFT_OFFSET;
+        int realY = yIndex * STEP_SIZE + TOP_OFFSET;
+        
+        glBegin(GL_POLYGON);
+        glVertex2f(realX + 2            , realY + 2);
+        glVertex2f(realX + STEP_SIZE - 3 , realY + 2);
+        glVertex2f(realX + STEP_SIZE - 3 , realY + STEP_SIZE - 2);
+        glVertex2f(realX + 2             , realY + STEP_SIZE - 2);
+        glEnd();
+      }
+      
+      // render strikes
+      if (strikeNo) {
+        glColor3f(1,1,1);
+        int realX = xi + leftOffset;
+        int realY = yi + TOP_OFFSET;
+        
+        glBegin(GL_POLYGON);
+        glVertex2f(realX + 10             , realY + 10);
+        glVertex2f(realX + STEP_SIZE - 10 , realY + 10);
+        glVertex2f(realX + STEP_SIZE - 10 , realY + STEP_SIZE - 10);
+        glVertex2f(realX + 10             , realY + STEP_SIZE - 10);
+        glEnd();
+      }
+    }
+  }
 }
 
 void onMouseClick(int button, int state, int x, int y)
@@ -118,63 +165,6 @@ int getLeftOffset(bool isEnemyBattleField)
     return ENEMY_LEFT_OFFSET;
   } else {
     return USER_LEFT_OFFSET;
-  }
-}
-
-void renderStrikesOnBattleFields(bool isEnemyBF)
-{
-  int strikeNo;
-  int cellCode;
-  int leftOffset = getLeftOffset(isEnemyBF);
-  
-  for (int xi=0; xi<BF_SIZE; xi+=STEP_SIZE) {
-    for (int yi=0; yi<BF_SIZE; yi+=STEP_SIZE) {
-      int yIndex = yi/STEP_SIZE;
-      int xIndex = xi/STEP_SIZE;
-      
-      if (isEnemyBF) {
-        cellCode = ENEMY_BATTLE_FIELD[yIndex][xIndex][0];
-        strikeNo = ENEMY_BATTLE_FIELD[yIndex][xIndex][1];
-      } else {
-        cellCode = USER_BATTLE_FIELD[yIndex][xIndex][0];
-        strikeNo = USER_BATTLE_FIELD[yIndex][xIndex][1];
-      }
-      // render battle ships
-      if (!isEnemyBF and cellCode) {
-        switch (cellCode) {
-          case 2:
-            glColor3f(0.0497, 0.5779, 0.71); break;
-          case 3:
-            glColor3f(0.1602, 0.5251, 0.89); break;
-          case 4:
-            glColor3f(0.1152, 0.2701, 0.96); break;
-        }
-        
-        int realX = xIndex * STEP_SIZE + USER_LEFT_OFFSET;
-        int realY = yIndex * STEP_SIZE + TOP_OFFSET;
-        
-        glBegin(GL_POLYGON);
-        glVertex2f(realX + 2            , realY + 2);
-        glVertex2f(realX + STEP_SIZE - 3 , realY + 2);
-        glVertex2f(realX + STEP_SIZE - 3 , realY + STEP_SIZE - 2);
-        glVertex2f(realX + 2             , realY + STEP_SIZE - 2);
-        glEnd();
-      }
-    
-      // render strikes
-      if (strikeNo) {
-        glColor3f(1,1,1);
-        int realX = xi + leftOffset;
-        int realY = yi + TOP_OFFSET;
-        
-        glBegin(GL_POLYGON);
-          glVertex2f(realX + 10             , realY + 10);
-          glVertex2f(realX + STEP_SIZE - 10 , realY + 10);
-          glVertex2f(realX + STEP_SIZE - 10 , realY + STEP_SIZE - 10);
-          glVertex2f(realX + 10             , realY + STEP_SIZE - 10);
-        glEnd();
-      }
-    }
   }
 }
 
