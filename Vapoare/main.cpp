@@ -11,17 +11,18 @@ void onMouseClick(int button, int state, int x, int y);
 int WIDTH = 1280;
 int HEIGHT = 760;
 int TOP_OFFSET = 100;
-int USER_LEFT_OFFSET = 100;
+int ENEMY_LEFT_OFFSET = 100;
+int USER_LEFT_OFFSET = 600;
 int BF_SIZE = 400;
 int STEP_SIZE = BF_SIZE/10;
 int USER_BATTLE_FIELD[10][10]=
 {
+  {0, 1, 0, 0, 0, 0, 0, 0, 0, 0},
   {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
   {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
   {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
   {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-  {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-  {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+  {0, 1, 0, 0, 0, 0, 0, 0, 0, 0},
   {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
   {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
   {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
@@ -35,10 +36,10 @@ int ENEMY_BATTLE_FIELD[10][10]=
   {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
   {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
   {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+  {0, 1, 0, 0, 0, 0, 0, 0, 0, 0},
+  {0, 1, 0, 0, 0, 0, 0, 0, 0, 0},
   {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-  {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-  {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-  {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+  {0, 0, 2, 0, 0, 0, 0, 0, 0, 0},
   {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
 };
 
@@ -85,54 +86,83 @@ int main(int argc, char** argv)
   return 0;
 }
 
-void renderBattleField(int originX, int originY, bool myBattleField)
+void renderBattleField(int originX, int originY, bool enemyBattleField)
 {
   
   glBegin(GL_LINE_LOOP);
-  
-
-  glVertex2f(originX,           originY);
-  glVertex2f(BF_SIZE + originX, originY);
-  glVertex2f(BF_SIZE + originX, BF_SIZE+originY);
-  glVertex2f(originX,           BF_SIZE + originY);
-  
+    glVertex2f(originX,           originY);
+    glVertex2f(BF_SIZE + originX, originY);
+    glVertex2f(BF_SIZE + originX, BF_SIZE+originY);
+    glVertex2f(originX,           BF_SIZE + originY);
   glEnd();
-  
-  
   
   glBegin(GL_LINES);
-  for (int i=0; i<BF_SIZE; i+=STEP_SIZE) {
-    glVertex2f(originX,           i+originY         );
-    glVertex2f(BF_SIZE + originX, i+originY         );
-    glVertex2f(i+originX,         originY           );
-    glVertex2f(i+originX,         BF_SIZE + originY );
-  }
+    for (int i=0; i<BF_SIZE; i+=STEP_SIZE) {
+      glVertex2f(originX,           i+originY         );
+      glVertex2f(BF_SIZE + originX, i+originY         );
+      glVertex2f(i+originX,         originY           );
+      glVertex2f(i+originX,         BF_SIZE + originY );
+    }
   glEnd();
   
-    for (int i=0; i<BF_SIZE; i+=STEP_SIZE) {
-      for (int j=0; j<BF_SIZE; j+=STEP_SIZE) {
-        if (USER_BATTLE_FIELD[i/STEP_SIZE][j/STEP_SIZE]==2){
-          int x = i + USER_LEFT_OFFSET;
-          int y = j + TOP_OFFSET;
-          glColor3f(1, 0, 0);
-          glBegin(GL_POLYGON);
-            glVertex2f(x + 10             , y + 10);
-            glVertex2f(x + STEP_SIZE - 10 , y + 10);
-            glVertex2f(x + STEP_SIZE - 10 , y + STEP_SIZE - 10);
-            glVertex2f(x + 10             , y + STEP_SIZE - 10);
-          glEnd();
+  int cellCode;
+  int leftOffset;
+  
+  for (int xi=0; xi<BF_SIZE; xi+=STEP_SIZE) {
+    for (int yi=0; yi<BF_SIZE; yi+=STEP_SIZE) {
+      
+      if (enemyBattleField) {
+        cellCode = ENEMY_BATTLE_FIELD[yi/STEP_SIZE][xi/STEP_SIZE];
+        
+        // do not render enemy ships positions
+        if (cellCode == 1) {
+          continue;
         }
         
+        leftOffset = ENEMY_LEFT_OFFSET;
+      } else {
+        cellCode = USER_BATTLE_FIELD[yi/STEP_SIZE][xi/STEP_SIZE];
+        leftOffset = USER_LEFT_OFFSET;
       }
+      
+      if (cellCode != 0){
+        switch (cellCode) {
+          case 1:
+            glColor3f(0.5, 0.5, 0); break;
+          case 2:
+            glColor3f(1, 0, 0); break;
+        }
+        
+        int x = xi + leftOffset;
+        int y = yi + TOP_OFFSET;
+        
+        glBegin(GL_POLYGON);
+          glVertex2f(x + 10             , y + 10);
+          glVertex2f(x + STEP_SIZE - 10 , y + 10);
+          glVertex2f(x + STEP_SIZE - 10 , y + STEP_SIZE - 10);
+          glVertex2f(x + 10             , y + STEP_SIZE - 10);
+        glEnd();
+      }
+      
     }
+  }
 }
 
 void onMouseClick(int button, int state, int x, int y)
 {
+  bool clickedOnEnemy = x < USER_LEFT_OFFSET;
+  int leftOffset = clickedOnEnemy ? ENEMY_LEFT_OFFSET : USER_LEFT_OFFSET;
+  
   if (button == 0 && state == 1) {
-    int xIndex = (x - USER_LEFT_OFFSET)/STEP_SIZE;
+    int xIndex = (x - leftOffset)/STEP_SIZE;
     int yIndex = (y - TOP_OFFSET)/STEP_SIZE;
-    USER_BATTLE_FIELD[xIndex][yIndex] = 2;
+    
+    if (clickedOnEnemy){
+      ENEMY_BATTLE_FIELD[yIndex][xIndex] = 2;
+    } else {
+      USER_BATTLE_FIELD[yIndex][xIndex] = 2;
+    }
+    
   }
   
   
@@ -145,10 +175,10 @@ void display()
   glClear(GL_COLOR_BUFFER_BIT);
   
   glColor3f(1, 0, 0);
-  renderBattleField(100, TOP_OFFSET, 1);
+  renderBattleField(ENEMY_LEFT_OFFSET, TOP_OFFSET, 1);
   
   glColor3f(1, 1, 1);
-  renderBattleField(600, TOP_OFFSET, 0);
+  renderBattleField(USER_LEFT_OFFSET, TOP_OFFSET, 0);
   
   /* swap the back and front buffers so we can see what we just drew */
   glutSwapBuffers();
