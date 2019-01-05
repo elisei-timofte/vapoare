@@ -19,17 +19,33 @@ int ENEMY_LEFT_OFFSET = 100;
 int USER_LEFT_OFFSET = 600;
 int BF_SIZE = 400;
 int STEP_SIZE = BF_SIZE/10;
-int USER_BATTLE_FIELD[10][10];
-int ENEMY_BATTLE_FIELD[10][10];
-int ROUND = 1;
-
-int USER_SHIPS[4][4][3]=
+int USER_BATTLE_FIELD[10][10][2]=
 {
-  {{1,2,0},{1,3,0}, {-1,-1,-1}, {-1,-1,-1}},
-  {{5,2,0},{6,3,0}, {-1,-1,-1}, {-1,-1,-1}},
-  {{6,5,0},{6,6,0}, {6,7,0}, {-1,-1,-1}},
-  {{1,4,0},{2,5,0}, {3,6,0}, {4,7,0}},
+  {{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0}},
+  {{0,0},{2,0},{2,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0}},
+  {{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0}},
+  {{0,0},{0,0},{2,0},{2,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0}},
+  {{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0}},
+  {{0,0},{3,0},{0,0},{0,0},{0,0},{4,0},{0,0},{0,0},{0,0},{0,0}},
+  {{0,0},{3,0},{0,0},{0,0},{4,0},{0,0},{0,0},{0,0},{0,0},{0,0}},
+  {{0,0},{3,0},{0,0},{4,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0}},
+  {{0,0},{0,0},{4,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0}},
+  {{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0}},
 };
+int ENEMY_BATTLE_FIELD[10][10][2]=
+{
+  {{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0}},
+  {{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0}},
+  {{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0}},
+  {{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0}},
+  {{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0}},
+  {{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0}},
+  {{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0}},
+  {{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0}},
+  {{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0}},
+  {{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0}},
+};
+int round = 1;
 
 void renderBattleField(int originX, int originY, bool isEnemyBattleField)
 {
@@ -38,10 +54,6 @@ void renderBattleField(int originX, int originY, bool isEnemyBattleField)
   
   int strikeNo;
   int leftOffset = getLeftOffset(isEnemyBattleField);
-  
-  if (!isEnemyBattleField) {
-    renderUserBattleShips();
-  }
   
   renderStrikesOnBattleFields(isEnemyBattleField);
 }
@@ -59,14 +71,14 @@ void onMouseClick(int button, int state, int x, int y)
     int yIndex = (y - TOP_OFFSET)/STEP_SIZE;
     
     if (clickedOnEnemy){
-      ENEMY_BATTLE_FIELD[yIndex][xIndex] = 2;
+      ENEMY_BATTLE_FIELD[yIndex][xIndex][1] = round;
       toogleRender = 1;
     }
     if (clickedOnUser){
-      USER_BATTLE_FIELD[yIndex][xIndex] = 2;
+      USER_BATTLE_FIELD[yIndex][xIndex][1] = round;
       toogleRender = 1;
     }
-    ROUND++;
+    round++;
   }
   
   if (toogleRender) {
@@ -109,45 +121,10 @@ int getLeftOffset(bool isEnemyBattleField)
   }
 }
 
-void renderUserBattleShips()
-{
-  int strikeNo;
-  for (int xi=0; xi<4; xi++) {
-    for (int yi=0; yi<4; yi++) {
-      int x = USER_SHIPS[xi][yi][0];
-      int y = USER_SHIPS[xi][yi][1];
-      strikeNo = USER_SHIPS[xi][yi][2];
-      
-      if (x == -1) {continue;}
-      
-      switch (xi) {
-        case 0:
-          glColor3f(0.0497, 0.5779, 0.71); break;
-        case 1:
-          glColor3f(0.0497, 0.5779, 0.71); break;
-        case 2:
-          glColor3f(0.1602, 0.5251, 0.89); break;
-        case 3:
-          glColor3f(0.1152, 0.2701, 0.96); break;
-      }
-      
-      int realX = x * STEP_SIZE + USER_LEFT_OFFSET;
-      int realY = y * STEP_SIZE + TOP_OFFSET;
-      
-      glBegin(GL_POLYGON);
-      glVertex2f(realX + 2            , realY + 2);
-      glVertex2f(realX + STEP_SIZE - 3 , realY + 2);
-      glVertex2f(realX + STEP_SIZE - 3 , realY + STEP_SIZE - 2);
-      glVertex2f(realX + 2             , realY + STEP_SIZE - 2);
-      glEnd();
-      
-    }
-  }
-}
-
 void renderStrikesOnBattleFields(bool isEnemyBF)
 {
   int strikeNo;
+  int cellCode;
   int leftOffset = getLeftOffset(isEnemyBF);
   
   for (int xi=0; xi<BF_SIZE; xi+=STEP_SIZE) {
@@ -156,14 +133,37 @@ void renderStrikesOnBattleFields(bool isEnemyBF)
       int xIndex = xi/STEP_SIZE;
       
       if (isEnemyBF) {
-        strikeNo = ENEMY_BATTLE_FIELD[yIndex][xIndex];
+        cellCode = ENEMY_BATTLE_FIELD[yIndex][xIndex][0];
+        strikeNo = ENEMY_BATTLE_FIELD[yIndex][xIndex][1];
       } else {
-        strikeNo = USER_BATTLE_FIELD[yi/STEP_SIZE][xi/STEP_SIZE];
+        cellCode = USER_BATTLE_FIELD[yIndex][xIndex][0];
+        strikeNo = USER_BATTLE_FIELD[yIndex][xIndex][1];
       }
-      const double green[3] = {0, 1, 0.4667};
-      if (strikeNo) {
+      // render battle ships
+      if (!isEnemyBF and cellCode) {
+        switch (cellCode) {
+          case 2:
+            glColor3f(0.0497, 0.5779, 0.71); break;
+          case 3:
+            glColor3f(0.1602, 0.5251, 0.89); break;
+          case 4:
+            glColor3f(0.1152, 0.2701, 0.96); break;
+        }
         
-        glColor3f(1,1,1); break;
+        int realX = xIndex * STEP_SIZE + USER_LEFT_OFFSET;
+        int realY = yIndex * STEP_SIZE + TOP_OFFSET;
+        
+        glBegin(GL_POLYGON);
+        glVertex2f(realX + 2            , realY + 2);
+        glVertex2f(realX + STEP_SIZE - 3 , realY + 2);
+        glVertex2f(realX + STEP_SIZE - 3 , realY + STEP_SIZE - 2);
+        glVertex2f(realX + 2             , realY + STEP_SIZE - 2);
+        glEnd();
+      }
+    
+      // render strikes
+      if (strikeNo) {
+        glColor3f(1,1,1);
         int realX = xi + leftOffset;
         int realY = yi + TOP_OFFSET;
         
