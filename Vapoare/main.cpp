@@ -90,7 +90,12 @@ void renderBattleField(int originX, int originY, bool isEnemyBF)
       
       // render strikes
       if (strikeNo) {
-        glColor3f(1,1,1);
+        if (cellCode) {
+          glColor3f(1,0,0);
+        } else {
+          glColor3f(1,1,1);
+        }
+        
         int realX = xi + leftOffset;
         int realY = yi + TOP_OFFSET;
         
