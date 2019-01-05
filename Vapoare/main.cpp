@@ -16,6 +16,7 @@ int TOP_OFFSET = 100;
 int ENEMY_LEFT_OFFSET = 100;
 int USER_LEFT_OFFSET = 600;
 int BF_SIZE = 400;
+int SHC_OFFSET = 50;
 int STEP_SIZE = BF_SIZE/10;
 int USER_BATTLE_FIELD[10][10][2]=
 {
@@ -139,9 +140,9 @@ void onMouseClick(int button, int state, int x, int y)
   
 }
 
-void renderGrid(int originX, int originY, bool isEnemyBattleField)
+void renderGrid(int originX, int originY, bool isEnemyBF)
 {
-  if (isEnemyBattleField) {
+  if (isEnemyBF) {
     glColor3f(1, 0, 0);
   } else {
     glColor3f(1, 1, 1);
@@ -155,13 +156,34 @@ void renderGrid(int originX, int originY, bool isEnemyBattleField)
   glEnd();
   
   glBegin(GL_LINES);
-  for (int i=0; i<BF_SIZE; i+=STEP_SIZE) {
+  for (int i=STEP_SIZE; i<BF_SIZE; i+=STEP_SIZE) {
     glVertex2f(originX          , originY + i       );
     glVertex2f(originX + BF_SIZE, originY + i       );
     glVertex2f(originX + i      , originY           );
     glVertex2f(originX + i      , originY + BF_SIZE );
+    
+    if (isEnemyBF) {
+      int yi = i/STEP_SIZE;
+      if (yi == 3 || yi == 6 || yi == 8){
+        glVertex2f(originX + BF_SIZE + SHC_OFFSET             , originY + i );
+        glVertex2f(originX + BF_SIZE + SHC_OFFSET + STEP_SIZE , originY + i );
+      }
+    }
   }
   glEnd();
+  
+  //  render ships hits column
+  if (isEnemyBF) {
+    glBegin(GL_LINE_LOOP);
+      glVertex2f(originX + BF_SIZE + SHC_OFFSET             , originY - STEP_SIZE );
+      glVertex2f(originX + BF_SIZE + SHC_OFFSET + STEP_SIZE , originY - STEP_SIZE );
+      glVertex2f(originX + BF_SIZE + SHC_OFFSET + STEP_SIZE , originY + BF_SIZE   );
+      glVertex2f(originX + BF_SIZE + SHC_OFFSET             , originY + BF_SIZE   );
+    glEnd();
+    glBegin(GL_LINES);
+      glVertex2f(originX       , originY + BF_SIZE );
+    glEnd();
+  }
 }
 
 int getLeftOffset(bool isEnemyBattleField)
@@ -177,9 +199,9 @@ void display()
 {
   /* clear the color buffer (resets everything to black) */
   glClear(GL_COLOR_BUFFER_BIT);
-  
-  renderBattleField(ENEMY_LEFT_OFFSET, TOP_OFFSET, 1);
   renderBattleField(USER_LEFT_OFFSET, TOP_OFFSET, 0);
+  renderBattleField(ENEMY_LEFT_OFFSET, TOP_OFFSET, 1);
+  
   
   /* swap the back and front buffers so we can see what we just drew */
   glutSwapBuffers();
