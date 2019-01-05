@@ -8,6 +8,7 @@ void reshape(int, int);
 void onMouseClick(int, int, int, int);
 
 void renderGrid(int, int, bool);
+void setColorByCellCode(int);
 int getLeftOffset(bool);
 
 int WIDTH = 1280;
@@ -18,6 +19,7 @@ int USER_LEFT_OFFSET = 100;
 int BF_SIZE = 400;
 int SHC_OFFSET = 50;
 int STEP_SIZE = BF_SIZE/10;
+int ENEMY_SHIPS[4];
 int USER_BATTLE_FIELD[10][10][2]=
 {
   {{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0}},
@@ -70,16 +72,7 @@ void renderBattleField(int originX, int originY, bool isEnemyBF)
       // render battle ships
 //      if (!isEnemyBF and cellCode) {
       if (cellCode) {
-        switch (cellCode) {
-          case 1:
-            glColor3f(0.67, 0.3779, 0.91); break;
-          case 2:
-            glColor3f(0.0497, 0.5779, 0.71); break;
-          case 3:
-            glColor3f(0.3276, 0.8906, 0.91); break;
-          case 4:
-            glColor3f(0.1152, 0.2701, 0.96); break;
-        }
+        setColorByCellCode(cellCode);
         
 //        int realX = xIndex * STEP_SIZE + USER_LEFT_OFFSET;
         
@@ -114,6 +107,39 @@ void renderBattleField(int originX, int originY, bool isEnemyBF)
       }
     }
   }
+  // render enemy ships hits column
+  if (isEnemyBF) {
+    int columnX = ENEMY_LEFT_OFFSET + BF_SIZE + SHC_OFFSET;
+    int columnY;
+    
+    if (ENEMY_SHIPS[1] || ENEMY_SHIPS[2] || ENEMY_SHIPS[3] || ENEMY_SHIPS[4]) {
+      for (int i=1; i<=4; i++) {
+        switch (i) {
+          case 1:
+            columnY = TOP_OFFSET + BF_SIZE - STEP_SIZE; break;
+          case 2:
+            columnY = TOP_OFFSET + BF_SIZE - 3*STEP_SIZE; break;
+          case 3:
+            columnY = TOP_OFFSET + BF_SIZE - 5*STEP_SIZE; break;
+          case 4:
+            columnY = TOP_OFFSET + BF_SIZE - 8*STEP_SIZE; break;
+        }
+        
+        for (int j=0; j<ENEMY_SHIPS[i]; j++) {
+          int tempColumnY = columnY - j * STEP_SIZE;
+          
+          setColorByCellCode(i);
+          
+          glBegin(GL_POLYGON);
+          glVertex2f(columnX + 10             , tempColumnY + 10);
+          glVertex2f(columnX + STEP_SIZE - 10 , tempColumnY + 10);
+          glVertex2f(columnX + STEP_SIZE - 10 , tempColumnY + STEP_SIZE - 10);
+          glVertex2f(columnX + 10             , tempColumnY + STEP_SIZE - 10);
+          glEnd();
+        }
+      }
+    }
+  }
 }
 
 void onMouseClick(int button, int state, int x, int y)
@@ -130,6 +156,7 @@ void onMouseClick(int button, int state, int x, int y)
     
     if (clickedOnEnemy){
       ENEMY_BATTLE_FIELD[yIndex][xIndex][1] = round;
+      ENEMY_SHIPS[ENEMY_BATTLE_FIELD[yIndex][xIndex][0]]++;
       toogleRender = 1;
     }
     if (clickedOnUser){
@@ -140,6 +167,7 @@ void onMouseClick(int button, int state, int x, int y)
   }
   
   if (toogleRender) {
+    cout<<"toogle Render\n";
     glutPostRedisplay();
   }
   
@@ -194,6 +222,20 @@ int getLeftOffset(bool isEnemyBattleField)
     return ENEMY_LEFT_OFFSET;
   } else {
     return USER_LEFT_OFFSET;
+  }
+}
+
+void setColorByCellCode(int cellCode)
+{
+  switch (cellCode) {
+    case 1:
+      glColor3f(0.67, 0.3779, 0.91); break;
+    case 2:
+      glColor3f(0.0497, 0.5779, 0.71); break;
+    case 3:
+      glColor3f(0.3276, 0.8906, 0.91); break;
+    case 4:
+      glColor3f(0.1152, 0.2701, 0.96); break;
   }
 }
 
