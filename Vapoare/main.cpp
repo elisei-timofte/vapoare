@@ -158,7 +158,8 @@ void onMouseClick(int button, int state, int x, int y)
       if (!ENEMY_BATTLE_FIELD[yIndex][xIndex][1]) {
         ENEMY_BATTLE_FIELD[yIndex][xIndex][1] = round;
         int shipLenth = ENEMY_BATTLE_FIELD[yIndex][xIndex][0];
-        if (ENEMY_SHIPS[shipLenth] < shipLenth) {
+        
+        if (ENEMY_SHIPS[shipLenth] <= shipLenth) {
           ENEMY_SHIPS[shipLenth]++;
         }
         toogleRender = 1;
