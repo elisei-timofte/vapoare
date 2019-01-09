@@ -70,13 +70,12 @@ void renderBattleField(int originX, int originY, bool isEnemyBF)
         strikeNo = USER_BATTLE_FIELD[yIndex][xIndex][1];
       }
       // render battle ships
-//      if (!isEnemyBF and cellCode) {
-      if (cellCode) {
+      if (!isEnemyBF and cellCode) {
+//      if (cellCode) {
         setColorByCellCode(cellCode);
         
-//        int realX = xIndex * STEP_SIZE + USER_LEFT_OFFSET;
-        
-        int realX = xIndex * STEP_SIZE + leftOffset;
+        int realX = xIndex * STEP_SIZE + USER_LEFT_OFFSET;
+//        int realX = xIndex * STEP_SIZE + leftOffset;
         int realY = yIndex * STEP_SIZE + TOP_OFFSET;
         
         glBegin(GL_POLYGON);
