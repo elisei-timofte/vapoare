@@ -35,6 +35,7 @@ int BUTTON_WIDTH = 150;
 int CLEAR_BUTTON_OFFSET = 650;
 int SUBMIT_BUTTON_OFFSET = 850;
 
+int cannonFires = 0;
 int ENEMY_SHIPS[4];
 int USER_BATTLE_FIELD[10][10][2]=
 {
@@ -104,10 +105,14 @@ void renderBattleField(int originX, int originY, bool isEnemyBF)
       
       // render strikes
       if (strikeNo) {
-        if (cellCode) {
-          glColor3f(1,0,0);
-        } else {
-          glColor3f(1,1,1);
+        if (strikeNo > 0) {
+          if (cellCode) {
+            glColor3f(1,0,0); //red
+          } else {
+            glColor3f(1,1,1); //white
+          }
+        } else if (strikeNo == -1) {
+          glColor3f(0.68,0.5984,0.5984); //gray
         }
         
         int realX = xi + leftOffset;
@@ -275,6 +280,7 @@ void onButtonsClick(int button, int state, int x, int y)
   bool toogleRender = 0;
   bool clickedOnReset = x < (USER_LEFT_OFFSET+BUTTON_WIDTH) && x > USER_LEFT_OFFSET && y > BUTTON_TOP_OFFSET && y < (BUTTON_TOP_OFFSET + BUTTON_HEIGHT);
   bool clickedOnClear = x < (CLEAR_BUTTON_OFFSET+BUTTON_WIDTH) && x > CLEAR_BUTTON_OFFSET && y > BUTTON_TOP_OFFSET && y < (BUTTON_TOP_OFFSET + BUTTON_HEIGHT);
+  bool clickedOnSubmit = x < (SUBMIT_BUTTON_OFFSET+BUTTON_WIDTH) && x > SUBMIT_BUTTON_OFFSET && y > BUTTON_TOP_OFFSET && y < (BUTTON_TOP_OFFSET + BUTTON_HEIGHT);
   
   if (clickedOnReset) {
     for (int i=0; i<=4; i++ ){
@@ -287,6 +293,30 @@ void onButtonsClick(int button, int state, int x, int y)
         USER_BATTLE_FIELD[i][j][1] = 0;
       }
     }
+    round = 1;
+    toogleRender = 1;
+  }
+  
+  if (clickedOnSubmit) {
+    for (int i=0; i<10; i++) {
+      for (int j=0; j<10; j++) {
+        int strikeNo = ENEMY_BATTLE_FIELD[i][j][1];
+        
+        if (strikeNo == -1) {
+          // mark as shooted
+          ENEMY_BATTLE_FIELD[i][j][1] = round;
+          
+          int shipLenth = ENEMY_BATTLE_FIELD[i][j][0];
+          
+          if (shipLenth && ENEMY_SHIPS[shipLenth] <= shipLenth) {
+            ENEMY_SHIPS[shipLenth]++;
+          }
+        }
+
+      }
+    }
+    round++;
+    cannonFires = 0;
     toogleRender = 1;
   }
   
@@ -308,13 +338,10 @@ void onBattleFieldClick(int button, int state, int x, int y)
     int yIndex = (y - TOP_OFFSET)/STEP_SIZE;
     
     if (clickedOnEnemy){
-      if (!ENEMY_BATTLE_FIELD[yIndex][xIndex][1]) {
-        ENEMY_BATTLE_FIELD[yIndex][xIndex][1] = round;
-        int shipLenth = ENEMY_BATTLE_FIELD[yIndex][xIndex][0];
+      if (!ENEMY_BATTLE_FIELD[yIndex][xIndex][1] and cannonFires <=7) {
+        ENEMY_BATTLE_FIELD[yIndex][xIndex][1] = -1;
+        cannonFires++;
         
-        if (ENEMY_SHIPS[shipLenth] <= shipLenth) {
-          ENEMY_SHIPS[shipLenth]++;
-        }
         toogleRender = 1;
       }
     }
@@ -322,7 +349,6 @@ void onBattleFieldClick(int button, int state, int x, int y)
       USER_BATTLE_FIELD[yIndex][xIndex][1] = round;
       toogleRender = 1;
     }
-    round++;
   }
   
   if (toogleRender) {
