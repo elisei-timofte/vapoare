@@ -19,7 +19,7 @@ void renderResetButton();
 void renderClearButton();
 void renderSubmitButton();
 void renderButton(int);
-void onButtonsClick(int, int, int, int);
+int onButtonsClick(int, int, int, int);
 void enemyTurnToFire();
 int getLeftOffset(bool);
 int getRandomNumber(int, int);
@@ -118,7 +118,7 @@ void renderBattleField(int originX, int originY, bool isEnemyBF)
             glColor3f(1,1,1); //white
           }
         } else if (strikeNo == -1) {
-          glColor3f(0.68,0.5984,0.5984); //gray
+          glColor3f(0.44,0.4092,0.4092); //gray
         }
         
         int realX = xi + leftOffset;
@@ -281,7 +281,7 @@ void renderButton(int leftOffset)
   glEnd();
 }
 
-void onButtonsClick(int button, int state, int x, int y)
+int onButtonsClick(int button, int state, int x, int y)
 {
   if (button == 0 && state == 1) {
     bool toogleRender = 0;
@@ -305,7 +305,9 @@ void onButtonsClick(int button, int state, int x, int y)
     }
     
     if (clickedOnSubmit) {
-      cout << "Submit pressed!!";
+      if (cannonFires == 0) {
+        return 0;
+      }
       for (int i=0; i<10; i++) {
         for (int j=0; j<10; j++) {
           int strikeNo = ENEMY_BATTLE_FIELD[i][j][1];
@@ -336,6 +338,7 @@ void onButtonsClick(int button, int state, int x, int y)
       glutPostRedisplay();
     }
   }
+  return 0;
 }
 
 void onBattleFieldClick(int button, int state, int x, int y)
