@@ -8,17 +8,33 @@ void reshape(int, int);
 void onMouseClick(int, int, int, int);
 
 void renderGrid(int, int, bool);
+void onBattleFieldClick(int, int, int, int);
 void setColorByCellCode(int);
+void renderButtons();
+void renderResetButton();
+void renderClearButton();
+void renderSubmitButton();
+void renderButton(int);
+void onButtonsClick(int, int, int, int);
 int getLeftOffset(bool);
 
 int WIDTH = 1280;
 int HEIGHT = 760;
+
 int TOP_OFFSET = 100;
 int ENEMY_LEFT_OFFSET = 600;
 int USER_LEFT_OFFSET = 100;
+
 int BF_SIZE = 400;
 int SHC_OFFSET = 50;
 int STEP_SIZE = BF_SIZE/10;
+
+int BUTTON_HEIGHT = 70;
+int BUTTON_TOP_OFFSET = TOP_OFFSET + BF_SIZE + 100;
+int BUTTON_WIDTH = 150;
+int CLEAR_BUTTON_OFFSET = 650;
+int SUBMIT_BUTTON_OFFSET = 850;
+
 int ENEMY_SHIPS[4];
 int USER_BATTLE_FIELD[10][10][2]=
 {
@@ -143,38 +159,8 @@ void renderBattleField(int originX, int originY, bool isEnemyBF)
 
 void onMouseClick(int button, int state, int x, int y)
 {
-  bool toogleRender = 0;
-  bool clickedOnEnemy = x < (ENEMY_LEFT_OFFSET+BF_SIZE) && x > ENEMY_LEFT_OFFSET && y > TOP_OFFSET && y < (TOP_OFFSET + BF_SIZE);
-  bool clickedOnUser = x < (USER_LEFT_OFFSET+BF_SIZE) && x > USER_LEFT_OFFSET && y > TOP_OFFSET && y < (TOP_OFFSET + BF_SIZE);
-  int leftOffset = clickedOnEnemy ? ENEMY_LEFT_OFFSET : USER_LEFT_OFFSET;
-  
-  // left click   && Button_up
-  if (button == 0 && state == 1) {
-    int xIndex = (x - leftOffset)/STEP_SIZE;
-    int yIndex = (y - TOP_OFFSET)/STEP_SIZE;
-    
-    if (clickedOnEnemy){
-      if (!ENEMY_BATTLE_FIELD[yIndex][xIndex][1]) {
-        ENEMY_BATTLE_FIELD[yIndex][xIndex][1] = round;
-        int shipLenth = ENEMY_BATTLE_FIELD[yIndex][xIndex][0];
-        
-        if (ENEMY_SHIPS[shipLenth] <= shipLenth) {
-          ENEMY_SHIPS[shipLenth]++;
-        }
-        toogleRender = 1;
-      }
-    }
-    if (clickedOnUser){
-      USER_BATTLE_FIELD[yIndex][xIndex][1] = round;
-      toogleRender = 1;
-    }
-    round++;
-  }
-  
-  if (toogleRender) {
-    cout<<"toogle Render\n";
-    glutPostRedisplay();
-  }
+  onBattleFieldClick(button, state, x, y);
+  onButtonsClick(button, state, x , y);
   
 }
 
@@ -244,13 +230,116 @@ void setColorByCellCode(int cellCode)
   }
 }
 
+void renderButtons()
+{
+  renderResetButton();
+  renderClearButton();
+  renderSubmitButton();
+}
+
+void renderResetButton()
+{
+  glColor3f(1, 0, 0);
+  
+  renderButton(USER_LEFT_OFFSET);
+}
+
+void renderClearButton()
+{
+  glColor3f(1, 0.8167, 0);
+  
+  renderButton(CLEAR_BUTTON_OFFSET);
+}
+
+void renderSubmitButton()
+{
+  glColor3f(0.0846, 0.63, 0.0126);
+  
+  renderButton(SUBMIT_BUTTON_OFFSET);
+}
+
+void renderButton(int leftOffset)
+{
+  glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+  
+  glBegin(GL_QUADS);
+    glVertex2f(leftOffset, BUTTON_TOP_OFFSET);
+    glVertex2f(leftOffset + BUTTON_WIDTH, BUTTON_TOP_OFFSET);
+    glVertex2f(leftOffset + BUTTON_WIDTH, BUTTON_TOP_OFFSET + BUTTON_HEIGHT);
+    glVertex2f(leftOffset, BUTTON_TOP_OFFSET + BUTTON_HEIGHT);
+  glEnd();
+}
+
+void onButtonsClick(int button, int state, int x, int y)
+{
+  bool toogleRender = 0;
+  bool clickedOnReset = x < (USER_LEFT_OFFSET+BUTTON_WIDTH) && x > USER_LEFT_OFFSET && y > BUTTON_TOP_OFFSET && y < (BUTTON_TOP_OFFSET + BUTTON_HEIGHT);
+  bool clickedOnClear = x < (CLEAR_BUTTON_OFFSET+BUTTON_WIDTH) && x > CLEAR_BUTTON_OFFSET && y > BUTTON_TOP_OFFSET && y < (BUTTON_TOP_OFFSET + BUTTON_HEIGHT);
+  
+  if (clickedOnReset) {
+    for (int i=0; i<=4; i++ ){
+        ENEMY_SHIPS[i] = 0;
+    }
+    
+    for (int i=0; i<10; i++) {
+      for (int j=0; j<10; j++) {
+        ENEMY_BATTLE_FIELD[i][j][1] = 0;
+        USER_BATTLE_FIELD[i][j][1] = 0;
+      }
+    }
+    toogleRender = 1;
+  }
+  
+  if (toogleRender) {
+    glutPostRedisplay();
+  }
+}
+
+void onBattleFieldClick(int button, int state, int x, int y)
+{
+  bool toogleRender = 0;
+  bool clickedOnEnemy = x < (ENEMY_LEFT_OFFSET+BF_SIZE) && x > ENEMY_LEFT_OFFSET && y > TOP_OFFSET && y < (TOP_OFFSET + BF_SIZE);
+  bool clickedOnUser = x < (USER_LEFT_OFFSET+BF_SIZE) && x > USER_LEFT_OFFSET && y > TOP_OFFSET && y < (TOP_OFFSET + BF_SIZE);
+  int leftOffset = clickedOnEnemy ? ENEMY_LEFT_OFFSET : USER_LEFT_OFFSET;
+  
+  // left click   && Button_up
+  if (button == 0 && state == 1) {
+    int xIndex = (x - leftOffset)/STEP_SIZE;
+    int yIndex = (y - TOP_OFFSET)/STEP_SIZE;
+    
+    if (clickedOnEnemy){
+      if (!ENEMY_BATTLE_FIELD[yIndex][xIndex][1]) {
+        ENEMY_BATTLE_FIELD[yIndex][xIndex][1] = round;
+        int shipLenth = ENEMY_BATTLE_FIELD[yIndex][xIndex][0];
+        
+        if (ENEMY_SHIPS[shipLenth] <= shipLenth) {
+          ENEMY_SHIPS[shipLenth]++;
+        }
+        toogleRender = 1;
+      }
+    }
+    if (clickedOnUser){
+      USER_BATTLE_FIELD[yIndex][xIndex][1] = round;
+      toogleRender = 1;
+    }
+    round++;
+  }
+  
+  if (toogleRender) {
+    cout<<"toogle Render\n";
+    glutPostRedisplay();
+  }
+}
+
 void display()
 {
   /* clear the color buffer (resets everything to black) */
   glClear(GL_COLOR_BUFFER_BIT);
+  
   renderBattleField(USER_LEFT_OFFSET, TOP_OFFSET, 0);
   renderBattleField(ENEMY_LEFT_OFFSET, TOP_OFFSET, 1);
   
+  renderButtons();
   
   /* swap the back and front buffers so we can see what we just drew */
   glutSwapBuffers();
