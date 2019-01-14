@@ -1,6 +1,10 @@
 /* This line is for Max OSX  */
 #include <GLUT/glut.h>
 #include <iostream>
+#include <time.h>
+#include <stdlib.h>
+#include <stdio.h>
+
 using namespace std;
 /*! GLUT display callback function */
 void display(void);
@@ -16,7 +20,9 @@ void renderClearButton();
 void renderSubmitButton();
 void renderButton(int);
 void onButtonsClick(int, int, int, int);
+void enemyTurnToFire();
 int getLeftOffset(bool);
+int getRandomNumber(int, int);
 
 int WIDTH = 1280;
 int HEIGHT = 760;
@@ -277,63 +283,70 @@ void renderButton(int leftOffset)
 
 void onButtonsClick(int button, int state, int x, int y)
 {
-  bool toogleRender = 0;
-  bool clickedOnReset = x < (USER_LEFT_OFFSET+BUTTON_WIDTH) && x > USER_LEFT_OFFSET && y > BUTTON_TOP_OFFSET && y < (BUTTON_TOP_OFFSET + BUTTON_HEIGHT);
-  bool clickedOnClear = x < (CLEAR_BUTTON_OFFSET+BUTTON_WIDTH) && x > CLEAR_BUTTON_OFFSET && y > BUTTON_TOP_OFFSET && y < (BUTTON_TOP_OFFSET + BUTTON_HEIGHT);
-  bool clickedOnSubmit = x < (SUBMIT_BUTTON_OFFSET+BUTTON_WIDTH) && x > SUBMIT_BUTTON_OFFSET && y > BUTTON_TOP_OFFSET && y < (BUTTON_TOP_OFFSET + BUTTON_HEIGHT);
-  
-  if (clickedOnReset) {
-    for (int i=0; i<=4; i++ ){
-        ENEMY_SHIPS[i] = 0;
+  if (button == 0 && state == 1) {
+    bool toogleRender = 0;
+    bool clickedOnReset = x < (USER_LEFT_OFFSET+BUTTON_WIDTH) && x > USER_LEFT_OFFSET && y > BUTTON_TOP_OFFSET && y < (BUTTON_TOP_OFFSET + BUTTON_HEIGHT);
+    bool clickedOnClear = x < (CLEAR_BUTTON_OFFSET+BUTTON_WIDTH) && x > CLEAR_BUTTON_OFFSET && y > BUTTON_TOP_OFFSET && y < (BUTTON_TOP_OFFSET + BUTTON_HEIGHT);
+    bool clickedOnSubmit = x < (SUBMIT_BUTTON_OFFSET+BUTTON_WIDTH) && x > SUBMIT_BUTTON_OFFSET && y > BUTTON_TOP_OFFSET && y < (BUTTON_TOP_OFFSET + BUTTON_HEIGHT);
+    
+    if (clickedOnReset) {
+      for (int i=0; i<=4; i++ ){
+          ENEMY_SHIPS[i] = 0;
+      }
+      
+      for (int i=0; i<10; i++) {
+        for (int j=0; j<10; j++) {
+          ENEMY_BATTLE_FIELD[i][j][1] = 0;
+          USER_BATTLE_FIELD[i][j][1] = 0;
+        }
+      }
+      round = 1;
+      toogleRender = 1;
     }
     
-    for (int i=0; i<10; i++) {
-      for (int j=0; j<10; j++) {
-        ENEMY_BATTLE_FIELD[i][j][1] = 0;
-        USER_BATTLE_FIELD[i][j][1] = 0;
-      }
-    }
-    round = 1;
-    toogleRender = 1;
-  }
-  
-  if (clickedOnSubmit) {
-    for (int i=0; i<10; i++) {
-      for (int j=0; j<10; j++) {
-        int strikeNo = ENEMY_BATTLE_FIELD[i][j][1];
-        
-        if (strikeNo == -1) {
-          // mark as shooted
-          ENEMY_BATTLE_FIELD[i][j][1] = round;
+    if (clickedOnSubmit) {
+      cout << "Submit pressed!!";
+      for (int i=0; i<10; i++) {
+        for (int j=0; j<10; j++) {
+          int strikeNo = ENEMY_BATTLE_FIELD[i][j][1];
           
-          int shipLenth = ENEMY_BATTLE_FIELD[i][j][0];
-          
-          if (shipLenth && ENEMY_SHIPS[shipLenth] <= shipLenth) {
-            ENEMY_SHIPS[shipLenth]++;
+          if (strikeNo == -1) {
+            // mark as shooted
+            ENEMY_BATTLE_FIELD[i][j][1] = round;
+            
+            int shipLenth = ENEMY_BATTLE_FIELD[i][j][0];
+            
+            if (shipLenth && ENEMY_SHIPS[shipLenth] <= shipLenth) {
+              ENEMY_SHIPS[shipLenth]++;
+            }
           }
-        }
 
+        }
       }
+      
+      cannonFires = 0;
+      toogleRender = 1;
+      
+      enemyTurnToFire();
+      
+      round++;
     }
-    round++;
-    cannonFires = 0;
-    toogleRender = 1;
-  }
-  
-  if (toogleRender) {
-    glutPostRedisplay();
+    
+    if (toogleRender) {
+      glutPostRedisplay();
+    }
   }
 }
 
 void onBattleFieldClick(int button, int state, int x, int y)
 {
-  bool toogleRender = 0;
-  bool clickedOnEnemy = x < (ENEMY_LEFT_OFFSET+BF_SIZE) && x > ENEMY_LEFT_OFFSET && y > TOP_OFFSET && y < (TOP_OFFSET + BF_SIZE);
-  bool clickedOnUser = x < (USER_LEFT_OFFSET+BF_SIZE) && x > USER_LEFT_OFFSET && y > TOP_OFFSET && y < (TOP_OFFSET + BF_SIZE);
-  int leftOffset = clickedOnEnemy ? ENEMY_LEFT_OFFSET : USER_LEFT_OFFSET;
-  
-  // left click   && Button_up
   if (button == 0 && state == 1) {
+    bool toogleRender = 0;
+    bool clickedOnEnemy = x < (ENEMY_LEFT_OFFSET+BF_SIZE) && x > ENEMY_LEFT_OFFSET && y > TOP_OFFSET && y < (TOP_OFFSET + BF_SIZE);
+    bool clickedOnUser = x < (USER_LEFT_OFFSET+BF_SIZE) && x > USER_LEFT_OFFSET && y > TOP_OFFSET && y < (TOP_OFFSET + BF_SIZE);
+    int leftOffset = clickedOnEnemy ? ENEMY_LEFT_OFFSET : USER_LEFT_OFFSET;
+    
+    
     int xIndex = (x - leftOffset)/STEP_SIZE;
     int yIndex = (y - TOP_OFFSET)/STEP_SIZE;
     
@@ -349,12 +362,30 @@ void onBattleFieldClick(int button, int state, int x, int y)
       USER_BATTLE_FIELD[yIndex][xIndex][1] = round;
       toogleRender = 1;
     }
+    
+    if (toogleRender) {
+      cout<<"toogle Render\n";
+      glutPostRedisplay();
+    }
   }
-  
-  if (toogleRender) {
-    cout<<"toogle Render\n";
-    glutPostRedisplay();
+}
+
+void enemyTurnToFire() {
+  int enemyCannonFires = 1;
+  while (enemyCannonFires <= 7) {
+    int i = getRandomNumber(0, 10);
+    int j = getRandomNumber(0, 10);
+    cout << USER_BATTLE_FIELD[i][j][1] << " " <<enemyCannonFires<<"\n";
+    if (!USER_BATTLE_FIELD[i][j][1]) {
+      USER_BATTLE_FIELD[i][j][1] = round;
+      enemyCannonFires++;
+    }
   }
+}
+
+int getRandomNumber(int nMin, int nMax)
+{
+  return rand()%(nMax-nMin) + nMin;
 }
 
 void display()
